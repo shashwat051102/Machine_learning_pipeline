@@ -10,9 +10,9 @@ from urllib.parse import urlparse
 import mlflow
 
 
-os.environ['MLFLOW_TRACKING_URI'] = "https://dagshub.com/shashwatsingh0511/machine_learning_pipeline.mlflow"
-os.environ["MLFLOW_TRAcking_USERNAME"] = "shashwatsingh0511"
-os.environ["MLFLOW_TRACKING_PASSWORD"] = "99c593c5d3e7fd5f7db3c0e90e70ca536fcd8a7e"
+os.environ['MLFLOW_TRACKING_URI'] = "MLFLOW_TRACKING_URI"
+os.environ["MLFLOW_TRAcking_USERNAME"] = "MLFLOW_TRAcking_USERNAME"
+os.environ["MLFLOW_TRACKING_PASSWORD"] = "MLFLOW_TRACKING_PASSWORD"
 
 def hyperparameter_tuning(X_train, y_train, param_grid):
     rf = RandomForestClassifier()
