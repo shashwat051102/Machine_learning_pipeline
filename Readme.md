@@ -25,13 +25,6 @@ The pipeline is modular and consists of three main stages, orchestrated by DVC:
   - Loads the raw dataset.
   - Cleans and preprocesses data (e.g., renaming columns, handling missing values, feature engineering).
   - Saves the processed dataset for downstream tasks.
-- **DVC Stage Example:**
-  ```bash
-  dvc stage add -n preprocess \
-      -d src/preprocess.py -d data/raw/data.csv \
-      -o data/processed/data.csv \
-      python src/preprocess.py
-  ```
 
 ### 2. **Training**
 - **Script:** `src/train.py`
@@ -40,15 +33,9 @@ The pipeline is modular and consists of three main stages, orchestrated by DVC:
 - **Description:**  
   - Loads the processed data.
   - Trains a Random Forest Classifier (hyperparameters configurable via `params.yaml`).
+  - Performs hyperparameter tuning using GridSearchCV.
   - Saves the trained model.
-  - Logs parameters, metrics, and model artifacts to MLflow.
-- **DVC Stage Example:**
-  ```bash
-  dvc stage add -n train \
-      -d src/train.py -d data/processed/data.csv \
-      -o models/model.pkl \
-      python src/train.py
-  ```
+  - Logs parameters, metrics, and model artifacts to MLflow (hosted on DagsHub).
 
 ### 3. **Evaluation**
 - **Script:** `src/evaluate.py`
@@ -57,12 +44,6 @@ The pipeline is modular and consists of three main stages, orchestrated by DVC:
   - Loads the trained model and processed data.
   - Evaluates model performance (e.g., accuracy, confusion matrix).
   - Logs evaluation metrics to MLflow.
-- **DVC Stage Example:**
-  ```bash
-  dvc stage add -n evaluate \
-      -d src/evaluate.py -d models/model.pkl -d data/processed/data.csv \
-      python src/evaluate.py
-  ```
 
 ---
 
@@ -119,21 +100,32 @@ dvc repro
 ```
 This will execute all pipeline stages in order, only re-running stages if their dependencies have changed.
 
-### 6. **Track Experiments with MLflow**
+### 6. **Track Experiments with MLflow (via DagsHub)**
 
-Start the MLflow UI to visualize and compare experiment runs:
+This project uses [DagsHub](https://dagshub.com/) as the remote MLflow tracking server.  
+MLflow tracking URI and credentials are set in `src/train.py`:
+
+```python
+os.environ['MLFLOW_TRACKING_URI'] = "https://dagshub.com/<username>/<repo>.mlflow"
+os.environ["MLFLOW_TRACKING_USERNAME"] = "<username>"
+os.environ["MLFLOW_TRACKING_PASSWORD"] = "<token>"
+```
+
+Start the MLflow UI (if running locally):
 
 ```bash
 mlflow ui
 ```
-Open [http://localhost:5000](http://localhost:5000) in your browser.
+Or, view your experiments directly on your DagsHub project page.
 
-### 7. **Version Data and Models Remotely (Optional)**
+### 7. **Version Data and Models Remotely with DagsHub**
 
-Configure a DVC remote (e.g., S3, DagsHub) to store large files:
+DVC is configured to use DagsHub as the remote storage for datasets and models.  
+To push your data and models to DagsHub:
 
 ```bash
-dvc remote add -d myremote <remote-url>
+dvc remote add origin https://dagshub.com/<username>/<repo>.dvc
+dvc remote default origin
 dvc push
 ```
 
@@ -142,9 +134,9 @@ dvc push
 ## 🧪 Experimentation Workflow
 
 - **Change parameters** in `params.yaml` and re-run `dvc repro` to trigger new experiments.
-- **Track all runs** in MLflow, including parameters, metrics, and model artifacts.
-- **Compare experiments** visually in the MLflow UI to select the best model.
-- **Share results** and pipeline state with your team using Git and DVC.
+- **Track all runs** in MLflow (hosted on DagsHub), including parameters, metrics, and model artifacts.
+- **Compare experiments** visually in the MLflow UI or on DagsHub to select the best model.
+- **Share results** and pipeline state with your team using Git, DVC, and DagsHub.
 
 ---
 
@@ -163,6 +155,7 @@ dvc push
 
 - [DVC Documentation](https://dvc.org/doc)
 - [MLflow Documentation](https://mlflow.org/docs/latest/index.html)
+- [DagsHub Documentation](https://dagshub.com/docs/)
 - [Scikit-learn Documentation](https://scikit-learn.org/stable/)
 - [Pima Indians Diabetes Dataset](https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database)
 
