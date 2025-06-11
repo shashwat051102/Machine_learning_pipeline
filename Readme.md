@@ -25,6 +25,13 @@ The pipeline is modular and consists of three main stages, orchestrated by DVC:
   - Loads the raw dataset.
   - Cleans and preprocesses data (e.g., renaming columns, handling missing values, feature engineering).
   - Saves the processed dataset for downstream tasks.
+- **DVC Stage Example:**
+  ```bash
+  dvc stage add -n preprocess \
+      -d src/preprocess.py -d data/raw/data.csv \
+      -o data/processed/data.csv \
+      python src/preprocess.py
+  ```
 
 ### 2. **Training**
 - **Script:** `src/train.py`
@@ -36,6 +43,15 @@ The pipeline is modular and consists of three main stages, orchestrated by DVC:
   - Performs hyperparameter tuning using GridSearchCV.
   - Saves the trained model.
   - Logs parameters, metrics, and model artifacts to MLflow (hosted on DagsHub).
+  - Logs confusion matrix and classification report as artifacts.
+  - Uses DagsHub as the remote MLflow tracking server for centralized experiment management.
+- **DVC Stage Example:**
+  ```bash
+  dvc stage add -n train \
+      -d src/train.py -d data/processed/data.csv \
+      -o models/model.pkl \
+      python src/train.py
+  ```
 
 ### 3. **Evaluation**
 - **Script:** `src/evaluate.py`
@@ -44,9 +60,14 @@ The pipeline is modular and consists of three main stages, orchestrated by DVC:
   - Loads the trained model and processed data.
   - Evaluates model performance (e.g., accuracy, confusion matrix).
   - Logs evaluation metrics to MLflow.
+- **DVC Stage Example:**
+  ```bash
+  dvc stage add -n evaluate \
+      -d src/evaluate.py -d models/model.pkl -d data/processed/data.csv \
+      python src/evaluate.py
+  ```
 
 ---
-
 ## 🗂️ Directory Structure
 
 ```
