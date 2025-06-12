@@ -193,6 +193,8 @@ dvc push
 
 ---
 
+Keep learning and keep growing
+
 ## 📝 License
 
 This project is provided for educational and demonstration purposes.
